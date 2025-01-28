@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status
+# Exit immediately if a command exits with a non-zero status]
+# For linux
 set -e
 
 # Step 1: Create a virtual environment
 echo "Creating virtual environment..."
-python3 -m venv venv
+py -m venv venv
 
 # Step 2: Activate the virtual environment
 echo "Activating virtual environment..."
