@@ -33,6 +33,10 @@ Run the script directly using Python:
 """
 
 import sys
+# The line `import glfw` is importing the GLFW library in Python. GLFW (Graphics Library Framework) is
+# a library that provides a simple API for creating windows, contexts, and surfaces, receiving input
+# and events. In this script, GLFW is used for window management and event handling in the Fractal
+# Viewer application.
 import glfw
 from OpenGL.GL import *
 from julia_set import render_julia_set
