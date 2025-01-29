@@ -1,25 +1,26 @@
-# mandelbrot_set.py
 """
 mandelbrot_set.py
 
-This module generates and visualizes Mandelbrot sets using PyOpenGL for rendering.
+This module generates and visualizes Mandelbrot sets using PyOpenGL for rendering with Pygame.
 
 Functions:
-    mandelbrot(width, height, max_iter, escape_radius):
-        Generates the Mandelbrot set for a given window in the complex plane.
+-----------
+mandelbrot(width, height, max_iter, escape_radius):
+    Generates the Mandelbrot set for a given window in the complex plane.
 
-    render_mandelbrot(mandelbrot_data, width, height):
-        Renders the Mandelbrot set data using PyOpenGL.
+render_mandelbrot():
+    Renders the Mandelbrot set using PyOpenGL and Pygame.
 
 Constants:
-    DEFAULT_WIDTH (int): Default width of the Mandelbrot set window.
-    DEFAULT_HEIGHT (int): Default height of the Mandelbrot set window.
+-----------
+DEFAULT_WIDTH (int): Default width of the Mandelbrot set window.
+DEFAULT_HEIGHT (int): Default height of the Mandelbrot set window.
 """
 
 import numpy as np
+import pygame
+from pygame.locals import *
 from OpenGL.GL import *
-from OpenGL.GLUT import *
-from OpenGL.GLU import *
 
 # Constants for the Mandelbrot set rendering
 DEFAULT_WIDTH = 800
@@ -54,34 +55,41 @@ def mandelbrot(width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, max_iter=300, escape_
 
     return mandelbrot_data
 
-def render_mandelbrot(mandelbrot_data, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT):
+def render_mandelbrot_set():
     """
-    Renders the Mandelbrot set data using PyOpenGL.
+    Renders the Mandelbrot set using PyOpenGL and Pygame.
+    """
+    pygame.init()
+    screen = pygame.display.set_mode((DEFAULT_WIDTH, DEFAULT_HEIGHT), DOUBLEBUF | OPENGL)
+    pygame.display.set_caption("Mandelbrot Set")
 
-    Parameters:
-        mandelbrot_data (np.ndarray): The 2D array of iteration counts.
-        width (int): Width of the rendered image.
-        height (int): Height of the rendered image.
-    """
-    def display():
+    glClearColor(0, 0, 0, 1)
+    glOrtho(-1, 1, -1, 1, -1, 1)
+
+    # Generate Mandelbrot set data
+    mandelbrot_data = mandelbrot(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                running = False
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
+
+        # Clear the screen
         glClear(GL_COLOR_BUFFER_BIT)
         glBegin(GL_POINTS)
 
-        for i in range(height):
-            for j in range(width):
+        for i in range(DEFAULT_HEIGHT):
+            for j in range(DEFAULT_WIDTH):
                 iter_count = mandelbrot_data[i, j]
                 color_intensity = iter_count / np.max(mandelbrot_data)
                 glColor3f(color_intensity * 0.7, color_intensity * 0.4, 1.0 - color_intensity)
-                glVertex2f(j / width * 2 - 1, i / height * 2 - 1)
+                glVertex2f(j / DEFAULT_WIDTH * 2 - 1, i / DEFAULT_HEIGHT * 2 - 1)
 
         glEnd()
-        glFlush()
+        pygame.display.flip()
 
-    glutInit()
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
-    glutInitWindowSize(width, height)
-    glutCreateWindow("Mandelbrot Set")
-    glClearColor(0, 0, 0, 1)
-    glOrtho(-1, 1, -1, 1, -1, 1)
-    glutDisplayFunc(display)
-    glutMainLoop()
+    pygame.quit()

@@ -1,5 +1,3 @@
-# main.py
-
 """
 main.py
 
@@ -33,32 +31,21 @@ Run the script directly using Python:
 """
 
 import sys
-# The line `import glfw` is importing the GLFW library in Python. GLFW (Graphics Library Framework) is
-# a library that provides a simple API for creating windows, contexts, and surfaces, receiving input
-# and events. In this script, GLFW is used for window management and event handling in the Fractal
-# Viewer application.
-import glfw
+import pygame
+from pygame.locals import *
 from OpenGL.GL import *
 from julia_set import render_julia_set
 from mandelbrot_set import render_mandelbrot_set
 
 def main():
-    # Initialize GLFW
-    if not glfw.init():
-        print("Failed to initialize GLFW")
-        sys.exit(1)
+    # Initialize Pygame
+    pygame.init()
 
-    # Create a windowed mode window and its OpenGL context
-    window = glfw.create_window(800, 600, "Julia and Mandelbrot Sets", None, None)
-    if not window:
-        print("Failed to create GLFW window")
-        glfw.terminate()
-        sys.exit(1)
+    # Set up the display with OpenGL
+    screen = pygame.display.set_mode((800, 600), DOUBLEBUF | OPENGL)
+    pygame.display.set_caption("Julia and Mandelbrot Sets")
 
-    # Make the window's context current
-    glfw.make_context_current(window)
-
-    # Set the clear color
+    # Set the clear color (black background)
     glClearColor(0.0, 0.0, 0.0, 1.0)
 
     # Select which set to render
@@ -73,25 +60,31 @@ def main():
         render_function = render_mandelbrot_set
     else:
         print("Invalid choice. Exiting.")
-        glfw.terminate()
+        pygame.quit()
         sys.exit(1)
 
     # Main loop
-    while not glfw.window_should_close(window):
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                running = False
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
+
         # Clear the screen
         glClear(GL_COLOR_BUFFER_BIT)
 
         # Render the selected fractal
         render_function()
 
-        # Swap front and back buffers
-        glfw.swap_buffers(window)
+        # Swap buffers (update display)
+        pygame.display.flip()
 
-        # Poll for and process events
-        glfw.poll_events()
-
-    # Terminate GLFW
-    glfw.terminate()
+    # Quit Pygame
+    pygame.quit()
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
